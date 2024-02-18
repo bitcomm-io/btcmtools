@@ -6,7 +6,7 @@ use nom::{branch::alt, bytes::complete::{tag, take_until}, character::complete::
 
 // 定义一个枚举类型来表示不同的命令
 #[derive(Debug,PartialEq)]
-pub enum Command {
+pub enum IMCommand {
     Login(UserPass),
     Send(TextToUser),
     Logout(String),
@@ -33,7 +33,7 @@ pub struct TextToUser {
 }
 
 // 定义一个解析器来解析 login user pass 命令
-fn parse_login(input: &str) -> IResult<&str, Command> {
+fn parse_login(input: &str) -> IResult<&str, IMCommand> {
     // 匹配 login 关键字和一个或多个空格
     let (input, _) = tag("login")(input)?;
     let (input, _) = space1(input)?;
@@ -48,11 +48,11 @@ fn parse_login(input: &str) -> IResult<&str, Command> {
     let (input, pass) = take_while1(|c: char| c.is_alphanumeric() || "!@#$%^&*()_-+=<>?".contains(c))(input)?;
     let pass = pass.to_string();
     // 返回解析结果为 Login 类型的命令
-    Ok((input, Command::Login(UserPass { user, pass })))
+    Ok((input, IMCommand::Login(UserPass { user, pass })))
 }
 
 // 修改解析 send 命令的函数
-fn parse_send(input: &str) -> IResult<&str, Command> {
+fn parse_send(input: &str) -> IResult<&str, IMCommand> {
     // 匹配 send 关键字和一个或多个空格
     let (input, _) = tag("send")(input)?;
     // println!("ctx: {:?}\n",ctx);
@@ -80,10 +80,10 @@ fn parse_send(input: &str) -> IResult<&str, Command> {
     let user = user.to_string();
 
     // 返回解析结果为 Send 类型的命令
-    Ok((input, Command::Send(TextToUser { text, user })))
+    Ok((input, IMCommand::Send(TextToUser { text, user })))
 }
 
-fn parse_logout(input: &str) -> IResult<&str, Command> {
+fn parse_logout(input: &str) -> IResult<&str, IMCommand> {
     let (input, _) = tag("logout")(input)?;
     let (input, _) = space1(input)?;
 
@@ -91,21 +91,21 @@ fn parse_logout(input: &str) -> IResult<&str, Command> {
     let (input, user) = take_while1(|c: char| c.is_alphanumeric() || c == '_' || c == '@' || c == '.')(input)?;
     let user = user.to_string();
 
-    Ok((input, Command::Logout(user)))
+    Ok((input, IMCommand::Logout(user)))
 }
 
-fn parse_exit(input: &str) -> IResult<&str, Command> {
+fn parse_exit(input: &str) -> IResult<&str, IMCommand> {
     let (input, _) = tag("exit")(input)?;
-    Ok((input, Command::Exit))
+    Ok((input, IMCommand::Exit))
 }
 
-fn parse_quit(input: &str) -> IResult<&str, Command> {
+fn parse_quit(input: &str) -> IResult<&str, IMCommand> {
     let (input, _) = tag("quit")(input)?;
-    Ok((input, Command::Quit))
+    Ok((input, IMCommand::Quit))
 }
 
 // 定义一个解析器来解析任意的命令，使用 alt 的宏形式来选择不同的解析器
-pub fn parse_command(input: &str) -> IResult<&str, Command> {
+pub fn parse_command(input: &str) -> IResult<&str, IMCommand> {
     alt((parse_login, parse_send, parse_logout, parse_exit, parse_quit))(input)
 }
 
@@ -115,28 +115,28 @@ pub fn main() {
     let cases = vec![
         (
             "login alice 123",
-            Command::Login(UserPass {
+            IMCommand::Login(UserPass {
                 user: "alice".to_string(),
                 pass: "123".to_string(),
             }),
         ),
         (
             "send \"hello world!\" to bob",
-            Command::Send(TextToUser {
+            IMCommand::Send(TextToUser {
                 text: "hello".to_string(),
                 user: "bob".to_string(),
             }),
         ),
         (
             "login bob 456",
-            Command::Login(UserPass {
+            IMCommand::Login(UserPass {
                 user: "bob".to_string(),
                 pass: "456".to_string(),
             }),
         ),
         (
             "send \"world 世界,你好! Hello!\" to alice",
-            Command::Send(TextToUser {
+            IMCommand::Send(TextToUser {
                 text: "world".to_string(),
                 user: "alice".to_string(),
             }),

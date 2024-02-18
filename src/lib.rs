@@ -1,5 +1,5 @@
-pub mod command;
-
+pub mod imcmd;
+pub mod pid;
 
 use once_cell::sync::Lazy;
 use slog::{o, Logger,Drain};
@@ -17,26 +17,20 @@ fn build_logger() -> Logger {
     logger
 }
 
+use structopt::StructOpt;
 
-
-
-
-
-
-pub fn add(left: usize, right: usize) -> usize {
-    left + right
+#[derive(StructOpt, Debug)]
+#[structopt(name = "bitcomm")]
+/// bitcomm instant message server
+pub enum BitcommOpt {
+    /// Start instant message server and web admin server
+    #[structopt(name = "start", help = "Start instant message server and web admin server")]
+    StartServer,
+    /// Stop  instant message server and web admin server
+    #[structopt(name = "stop", help = "Stop  instant message server and web admin server")]
+    StopServer,
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
 
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
 
-        command::main();
 
-    }
-}
