@@ -5,9 +5,9 @@ use std::io::Read;
 use std::process;
 // use nix::sys::{kill, Signal};
 // use nix::unistd::Pid;
-use slog::info;
+// use slog::info;
 
-use crate::LOGGER;
+// use crate::LOGGER;
 
 static PID_FILE_NAME: &str = "bitcomm.pid";
 
@@ -50,13 +50,14 @@ pub fn dele_pid() {
 
 use nix::sys::signal::{kill, Signal};
 use nix::unistd::Pid;
+use tracing::info;
 
 pub fn kill_pid(pid:i32) {
     if pid != -1 {
         // 发送 SIGTERM 信号给指定的进程
         match kill(Pid::from_raw(pid), Signal::SIGTERM) {
-            Ok(_) => info!(LOGGER,"Successfully sent SIGTERM signal to PID {}", pid),
-            Err(err) => info!(LOGGER,"Failed to send SIGTERM signal to PID {}: {}", pid, err),
+            Ok(_) => info!("Successfully sent SIGTERM signal to PID {}", pid),
+            Err(err) => info!("Failed to send SIGTERM signal to PID {}: {}", pid, err),
         }
     }
 }
